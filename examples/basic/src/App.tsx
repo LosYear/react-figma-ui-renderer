@@ -1,22 +1,35 @@
 import * as React from 'react';
 import {Rectangle, Frame} from "../../../src";
+import {useEffect} from "react";
+
+const range = Array(100).fill(0).map((_, i) => i);
 
 const App = () => {
+    // Play with it to simulate multiple commitUpdate
     const [color, setColor] = React.useState(0);
+    const count = range.length;
+
+    // useEffect(() => {
+    //     setTimeout(() => {
+    //         setColor((color + 10) % 255);
+    //     }, 20);
+    // });
 
     return (
-        <Frame name="Test frame" width={200}
-               height={260}>
-            <Rectangle
-                width={200}
-                height={130}
-                y={0}
-                backgroundColor={{r: color / 255, g: color / 255, b: color / 255}}/>
-            <Rectangle
-                width={200}
-                height={130}
-                y={130}
-                backgroundColor={{r: 0.3, g: 0, b: 0.2}}/>
+        <Frame name="Test frame" height={50 * (count/10)}
+               width={50 * (count / 10)}>
+            {range.map(i =>
+                <Rectangle
+                    key={i}
+                    width={50}
+                    height={50}
+                    x={i%10 * 50}
+                    y={Math.floor(i/10) * 50}
+                    backgroundColor={{
+                        r: ((i * 10 + color) % 255) / 255,
+                        g: ((i * 5 + color) % 255) / 255,
+                        b: ((i * 20 + color) % 255) / 255
+                    }}/>)}
         </Frame>
     );
 
