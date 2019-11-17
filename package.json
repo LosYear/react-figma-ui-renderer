@@ -1,0 +1,25 @@
+{
+  "name": "react-figma-ui-renderer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Yaroslav Losev <losevyaroslav@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "figma-jsonrpc": "^0.3.3",
+    "react": "^16.12.0",
+    "react-devtools-core": "^4.2.0",
+    "react-reconciler": "^0.24.0",
+    "react-refresh": "^0.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^12.12.7",
+    "@types/react": "^16.9.11",
+    "html-webpack-inline-source-plugin": "^0.0.10",
+    "html-webpack-plugin": "^3.2.0",
+    "prettier": "^1.19.1",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.10"
+  }
+}
