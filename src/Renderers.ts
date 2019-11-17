@@ -1,8 +1,9 @@
-import { baseMixin, fillMixin, geometryMixin } from './Mixins';
+import { baseMixin, fillMixin, geometryMixin, hydratableMixin } from './Mixins';
 
-export const rectangleRenderer = (node, props) => {
+export const rectangleRenderer = (node, props, tag) => {
     const instance = node || figma.createRectangle();
 
+    hydratableMixin(instance, tag);
     baseMixin(instance, props);
     geometryMixin(instance, props);
     fillMixin(instance, props);
@@ -10,9 +11,10 @@ export const rectangleRenderer = (node, props) => {
     return instance;
 };
 
-export const frameRenderer = (node, props) => {
+export const frameRenderer = (node, props, tag) => {
     const instance = node || figma.createFrame();
 
+    hydratableMixin(instance, tag);
     baseMixin(instance, props);
     geometryMixin(instance, props);
     fillMixin(instance, props);

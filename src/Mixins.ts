@@ -30,3 +30,10 @@ export const baseMixin = (instance, props) => {
         instance.name = name;
     }
 };
+
+export const hydratableMixin = (instance, tag) => {
+    if (instance) {
+        instance.setPluginData('isReactFigmaNode', 'true');
+        instance.setPluginData('reactFigmaTag', String(tag));
+    }
+};

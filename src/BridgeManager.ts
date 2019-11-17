@@ -1,4 +1,17 @@
+function fixParents(instance, parent) {
+    instance.parent = parent;
+
+    if (instance.children) {
+        instance.children.forEach(child => {
+            fixParents(child, instance);
+        });
+    }
+}
+
 export default class BridgeManager {
+    // Used for hydration only
+    shadowTree = { children: [] };
+
     constructor() {}
 
     sendMessage(type, options) {
@@ -20,5 +33,24 @@ export default class BridgeManager {
 
     commitUpdate(type, node, update) {
         this.sendMessage('commitUpdate', { type, node, update });
+    }
+
+    getTree() {
+        // ! Dirty await code for message response, just to get it work ASAP !
+        return new Promise((resolve, reject) => {
+            this.sendMessage('getTree', {});
+
+            // @ts-ignore
+            global.onmessage = event => {
+                if (event.data.pluginMessage.type === 'sendTree') {
+                    // @ts-ignore
+                    global.onmessage = undefined;
+
+                    resolve(true);
+                    this.shadowTree = event.data.pluginMessage.options;
+                    fixParents(this.shadowTree, null);
+                }
+            };
+        });
     }
 }

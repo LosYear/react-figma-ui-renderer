@@ -23,6 +23,9 @@ export default class BridgeHandler {
             case 'removeChild':
                 this.removeChild(message.options);
                 break;
+            case 'getTree':
+                this.sendTree();
+                break;
         }
     }
 
@@ -30,11 +33,11 @@ export default class BridgeHandler {
         let instance = null;
         switch (type) {
             case 'rectangle': {
-                instance = rectangleRenderer(null, props);
+                instance = rectangleRenderer(null, props, tag);
                 break;
             }
             case 'frame': {
-                instance = frameRenderer(null, props);
+                instance = frameRenderer(null, props, tag);
                 break;
             }
         }
@@ -67,13 +70,36 @@ export default class BridgeHandler {
 
         switch (type) {
             case 'rectangle': {
-                rectangleRenderer(instance, update);
+                rectangleRenderer(instance, update, node);
                 break;
             }
             case 'frame': {
-                frameRenderer(instance, update);
+                frameRenderer(instance, update, node);
                 break;
             }
         }
+    }
+
+    sendTree() {
+        const forest = {
+            parent: null,
+            children: figma.currentPage.children.map(child => this.buildTree(child))
+        };
+        figma.ui.postMessage({ type: 'sendTree', options: forest });
+    }
+
+    private buildTree(parent) {
+        if (!parent || parent.getPluginData('isReactFigmaNode') !== 'true') {
+            return;
+        }
+        const tag = parent.getPluginData('reactFigmaTag');
+
+        this.instances.set(tag, parent);
+
+        return {
+            tag: parent.getPluginData('reactFigmaTag'),
+            type: parent.type,
+            children: parent.children && parent.children.map(child => this.buildTree(child))
+        };
     }
 }

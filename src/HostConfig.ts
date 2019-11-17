@@ -18,8 +18,18 @@ function shallowDiff(oldObj, newObj) {
     return changedProps;
 }
 
-export const render = (element, rootNode) => {
+const getNextChildren = instance => {
+    if (!instance || !instance.parent) {
+        return;
+    }
+    const parent = instance.parent;
+    const instanceIndex = parent.children.indexOf(instance);
+    return parent.children.slice(instanceIndex + 1).find(child => true);
+};
+
+export const render = async (element, rootNode) => {
     const bridgeManager = new BridgeManager();
+    await bridgeManager.getTree();
     let currentTag = 0;
 
     function allocateTag() {
@@ -35,6 +45,7 @@ export const render = (element, rootNode) => {
     const HostConfig = {
         now: Date.now,
         supportsMutation: true,
+        supportsHydration: true,
         getRootHostContext: () => {},
         prepareForCommit: () => {},
         resetAfterCommit: () => {},
@@ -66,6 +77,7 @@ export const render = (element, rootNode) => {
         commitUpdate: (element, updatePayload, type, oldProps, newProps, internalInstanceHandle) => {
             let diff = {};
             let dirty = false;
+
             updatePayload.forEach(propName => {
                 if (propName === 'children') {
                     return;
@@ -77,7 +89,31 @@ export const render = (element, rootNode) => {
             if (dirty) {
                 bridgeManager.commitUpdate(type, element.tag, diff);
             }
-        }
+        },
+
+        // Hydration
+        getFirstHydratableChild: parent => {
+            const list = parent ? parent.children : bridgeManager.shadowTree.children;
+            if (!list || list.length === 0) {
+                return null;
+            }
+            return list[0];
+        },
+        didNotHydrateContainerInstance: () => {},
+        didNotFindHydratableInstance: () => {},
+        didNotFindHydratableContainerInstance: () => {},
+        canHydrateInstance: (instance, type, props) => {
+            return instance.type.toLowerCase() === type ? instance : null;
+        },
+        hydrateInstance: (instance, type, props) => {
+            return shallowDiff({}, props);
+        },
+        removeChildFromContainer: () => {},
+        commitHydratedContainer: container => {},
+        getNextHydratableSibling: instance => {
+            return getNextChildren(instance);
+        },
+        commitMount: () => {}
     };
 
     const reconciler = Reconciler(HostConfig);
